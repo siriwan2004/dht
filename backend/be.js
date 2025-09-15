@@ -54,22 +54,20 @@ app.post('/temperature', async (req, res) => {
   humidity = Number(humidity);
 
   if (!Number.isFinite(temperature) || !Number.isFinite(humidity)) {
-    console.warn('Invalid payload from ESP32:', req.body);
     return res.status(400).json({ error: 'Invalid payload: need number temperature & humidity' });
   }
 
   const now = new Date();
-  const doc = { temperature, humidity, at: now }; // เพิ่มเวลา
-  latest = { temperature, humidity, at: now.getTime() }; // memory timestamp
+  const doc = { temperature, humidity, at: now }; // บันทึกเวลา
+  latest = { temperature, humidity }; // เก็บ timestamp เป็น ms
 
-  console.log('Received data:', latest);
+  console.log('Received:', latest);
 
   if (readingsCol) {
-    try {
-      const result = await readingsCol.insertOne(doc);
-      console.log('Inserted doc into MongoDB:', doc, 'ID:', result.insertedId);
-    } catch (e) {
-      console.error('Mongo insert error:', e);
+    try { 
+      await readingsCol.insertOne(doc); 
+    } catch (e) { 
+      console.error('Mongo insert error:', e); 
     }
   }
 
@@ -81,18 +79,13 @@ app.get('/data', async (_req, res) => {
   try {
     if (readingsCol) {
       const last = await readingsCol.find().sort({ at: -1 }).limit(1).next();
-      if (last) {
-        return res.json({
-          temperature: last.temperature,
-          humidity: last.humidity,
-          at: last.at.getTime(),
-        });
-      }
+      if (last) return res.json({
+        temperature: last.temperature,
+        humidity: last.humidity,
+        at: last.at.getTime(),
+      });
     }
-  } catch (e) {
-    console.error('Mongo read error:', e);
-  }
-  // fallback ถ้า MongoDB ไม่มีค่า
+  } catch (e) { console.error('Mongo read error:', e); }
   res.json(latest);
 });
 
@@ -114,10 +107,7 @@ app.get('/history', async (req, res) => {
     }));
 
     res.json(formatted);
-  } catch (e) {
-    console.error('/history error:', e);
-    res.json([]);
-  }
+  } catch (e) { console.error('/history error:', e); res.json([]); }
 });
 
 // ===== Hello World route =====

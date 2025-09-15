@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* โค้ด CSS ของเพื่อนเหมือนเดิมไม่เปลี่ยน */
+    /* CSS เดิมของคุณ */
     :root{
       --bg1:#0f2235; --bg2:#3c5570; --bg3:#a9b6c4;
       --text:#f3f7fd; --muted:rgba(255,255,255,.85);
@@ -30,7 +30,6 @@
 </head>
 <body>
   <div class="board">
-    <!-- ส่วน HTML board เดิมเหมือนเดิม -->
     <div class="bar">
       <div class="place">Temperature & Humidity Dashboard</div>
       <div class="chip" id="clock">--:--:--</div>
@@ -90,16 +89,17 @@
   </div>
 
   <script>
-    /* ===== Backend polling & chart logic ===== */
     const BACKEND_BASE = "https://dht-sz2z.onrender.com"; // เปลี่ยนเป็น server ของคุณ
     const MAX_POINTS = 60;
     const series = { t: [], h: [], ts: [] };
 
     function setText(id, value){ const el = document.getElementById(id); if (el) el.textContent = value; }
 
+    // ===== แสดงเวลาปัจจุบันในไทย =====
     function updateClock(){
       const el = document.getElementById('clock'); if (!el) return;
-      el.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+      const now = new Date();
+      el.textContent = now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false, timeZone:'Asia/Bangkok'});
     }
     updateClock(); setInterval(updateClock, 1000);
 
@@ -115,7 +115,7 @@
     let anim = { fromT:[], toT:[], fromH:[], toH:[], start:0, dur:800 };
     function scheduleAnimation(){ anim.fromT=anim.toT.slice(); anim.fromH=anim.toH.slice(); anim.toT=series.t.slice(); anim.toH=series.h.slice(); anim.start=performance.now(); requestAnimationFrame(tick);}
     function tick(now){ const p=Math.min(1,(now-anim.start)/anim.dur); drawChart(p); if(p<1) requestAnimationFrame(tick);}
-    function drawChart(progress=1){ /* ... เหมือนเดิม ... */ }
+    function drawChart(progress=1){ /* ... ใช้โค้ดเดิมของคุณ ... */ }
 
     function pushPoint(temp, hum, ts = Date.now()){
       series.t.push(Number(temp));
@@ -125,7 +125,7 @@
       scheduleAnimation();
     }
 
-    // โหลดประวัติจาก MongoDB แล้วเติมลงกราฟ + ตาราง
+    // ===== โหลดประวัติจาก MongoDB และแปลงเวลาไทย =====
     async function loadHistory(limit = 120){
       try{
         const res = await fetch(`${BACKEND_BASE}/history?limit=${limit}`, { cache: "no-store" });
@@ -133,16 +133,22 @@
         const tbody = document.getElementById('history-body');
         tbody.innerHTML = '';
 
-        docs.forEach(d => { const ts = new Date(d.at).getTime(); pushPoint(d.temperature, d.humidity, ts); });
+        docs.forEach(d => { 
+          // แปลงเวลาไทย
+          const tsThai = new Date(d.at).getTime() + 7*60*60*1000; // UTC+7
+          pushPoint(d.temperature, d.humidity, tsThai);
+        });
+
         docs.forEach(d => {
           const tr = document.createElement('tr');
-          const tStr = new Date(d.at).toLocaleString('th-TH',{hour12:false});
+          const tStr = new Date(d.at).toLocaleString('th-TH',{hour12:false, timeZone:'Asia/Bangkok'});
           tr.innerHTML = `<td>${tStr}</td><td>${Number(d.temperature).toFixed(1)}</td><td>${Number(d.humidity).toFixed(0)}</td>`;
           tbody.appendChild(tr);
         });
       }catch(e){ console.error('loadHistory error:', e);}
     }
 
+    // ===== ดึงค่า realtime /data =====
     async function fetchData(){
       try{
         const res = await fetch(`${BACKEND_BASE}/data`, { cache: "no-store" });
@@ -151,7 +157,7 @@
           const t = Number(data.temperature);
           setText("temperature-value", t.toFixed(1));
           if(!isNaN(t) && data.humidity !== null){
-            const ts = data.at ?? Date.now();
+            const ts = data.at ? new Date(data.at).getTime() + 7*60*60*1000 : Date.now(); // เวลาไทย
             pushPoint(t, Number(data.humidity), ts);
           }
         }
@@ -165,7 +171,11 @@
       }catch(err){ console.error("Fetch error:", err); setText("status-message","Error fetching data ⚠️"); }
     }
 
-    loadHistory(120).finally(()=>{ fetchData(); setInterval(fetchData, 5000); });
+    // เริ่มโหลดประวัติและ polling
+    loadHistory(120).finally(()=>{
+      fetchData();
+      setInterval(fetchData, 5000);
+    });
   </script>
 </body>
 </html>
