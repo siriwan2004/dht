@@ -1,300 +1,253 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temperature & Humidity Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    /* ====== พื้นหลัง Gradient ไหล ====== */
-    body {
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 2em;
-      margin: 0;
-      overflow: hidden; /* กันฟองอากาศเกินจอ */
-      background: linear-gradient(-45deg, #a8edea, #00c6fb, #009ffd, #00b4d8);
-      background-size: 400% 400%;
-      animation: oceanFlow 15s ease infinite;
-      color: #083d77;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1em;
+    /* Gradient พาสเทลชมพู → ม่วง → ฟ้า */
+    background: linear-gradient(135deg, #FFB6C1, #CBA3D6, #A8D5FA);
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
+    color: #fff;
+}
 
-    @keyframes oceanFlow {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+/* Gradient Animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
-    /* ====== Effect Bubble ====== */
-    .bubbles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 0;
-    }
+/* Header */
+h1 {
+    font-size: 2em;
+    margin-bottom: 1em;
+    text-align: center;
+    text-shadow: 1px 1px 10px rgba(0,0,0,0.2);
+}
 
-    .bubble {
-      position: absolute;
-      bottom: -100px;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 50%;
-      animation: rise 15s infinite ease-in;
-    }
+/* Cards */
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 1.5em;
+}
+.card {
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
+    padding: 1.5em;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover { transform: scale(1.05); box-shadow: 0 12px 25px rgba(0,0,0,0.25); }
 
-    @keyframes rise {
-      0% { transform: translateY(0) scale(1); opacity: 0.6; }
-      50% { opacity: 0.8; }
-      100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
-    }
+.label { font-weight: 600; font-size: 1.1em; margin-bottom: 0.3em; color: #fff; }
+.value { font-size: 2.5em; font-weight: 700; }
+.unit { font-size: 1.1em; color: rgba(255,255,255,0.8); }
+#temperature-value { color: #FF9A8B; }
+#humidity-value { color: #80D0C7; }
 
-    h1 {
-      font-size: 2.6em;
-      margin-bottom: 1.5em;
-      text-align: center;
-      color: #003459;
-      text-shadow: 0 0 12px rgba(255,255,255,0.6);
-      z-index: 2;
-    }
+/* Status message */
+.status-message {
+    background: rgba(255,255,255,0.2);
+    padding: 10px 15px;
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    margin-bottom: 1.5em;
+    font-weight: 500;
+    text-align: center;
+}
 
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-      width: 100%;
-      margin-bottom: 2em;
-      z-index: 2;
-    }
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    margin-bottom: 1.5em;
+}
+th, td { padding: 10px 12px; text-align: center; }
+th { background: rgba(255,255,255,0.3); font-weight: 600; color: #fff; }
+tr:hover { background: rgba(255,255,255,0.15); transition: 0.3s; }
 
-    .card {
-      background: rgba(255,255,255,0.85);
-      border: 1px solid rgba(0,140,200,0.3);
-      border-radius: 20px;
-      padding: 2em;
-      text-align: center;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-      transition: all 0.3s ease;
-      backdrop-filter: blur(6px);
-      z-index: 2;
-    }
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.25);
-    }
+/* Chart */
+#chart-container {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 25px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    margin-bottom: 2em;
+}
 
-    .label {
-      font-weight: 600;
-      font-size: 1.3em;
-      margin-bottom: 0.5em;
-      color: #0077b6;
-    }
-    .value {
-      font-size: 3em;
-      font-weight: 700;
-      color: #001f3f;
-    }
-    .unit {
-      font-size: 1.1em;
-      color: #444;
-    }
-    #temperature-value { color: #e63946; }
-    #humidity-value { color: #0077b6; }
+/* Footer */
+.footer {
+    margin-top: 2em;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    border-radius: 15px;
+    text-align: center;
+    font-weight: 500;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
 
-    .status-message {
-      background: rgba(255,255,255,0.85);
-      border: 1px solid rgba(0,119,182,0.4);
-      padding: 16px 24px;
-      border-radius: 15px;
-      margin-bottom: 2em;
-      font-weight: 500;
-      text-align: center;
-      color: #003459;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-      backdrop-filter: blur(6px);
-      z-index: 2;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      border-radius: 12px;
-      overflow: hidden;
-      background: rgba(255,255,255,0.9);
-      border: 1px solid rgba(0,140,200,0.3);
-      margin-bottom: 2em;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-      z-index: 2;
-    }
-    th, td {
-      padding: 12px 15px;
-      text-align: center;
-      color: #083d77;
-    }
-    th {
-      background: rgba(0,198,251,0.2);
-      font-weight: 600;
-    }
-    tr:nth-child(even) { background: rgba(0,198,251,0.08); }
-    tr:hover { background: rgba(0,198,251,0.18); transition: 0.3s; }
-
-    #chart-container {
-      width: 100%;
-      padding: 25px;
-      background: rgba(255,255,255,0.9);
-      border: 1px solid rgba(0,140,200,0.3);
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      margin-bottom: 2em;
-      backdrop-filter: blur(6px);
-      z-index: 2;
-    }
-
-    .footer {
-      margin-top: 2em;
-      padding: 15px 30px;
-      background: rgba(255,255,255,0.85);
-      border: 1px solid rgba(0,140,200,0.3);
-      border-radius: 12px;
-      text-align: center;
-      font-weight: 500;
-      color: #003459;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-      backdrop-filter: blur(6px);
-      z-index: 2;
-    }
-
-    @media (min-width: 600px) {
-      .container { flex-direction: row; justify-content: center; }
-      .card { flex: 1 1 220px; max-width: 250px; }
-    }
-  </style>
+/* Responsive */
+@media (min-width: 600px) {
+    .container { flex-direction: row; justify-content: center; }
+    .card { flex: 1 1 200px; max-width: 220px; }
+}
+</style>
 </head>
 <body>
-  <!-- ฟองอากาศ -->
-  <div class="bubbles" id="bubbles"></div>
 
-  <h1>Temperature & Humidity Dashboard</h1>
+<h1>Pastel Weather Dashboard</h1>
 
-  <div class="container">
+<div class="container">
     <div class="card">
-      <div class="label">Temperature</div>
-      <div class="value" id="temperature-value">--</div>
-      <div class="unit">°C</div>
+        <div class="label">Temperature 🌡️</div>
+        <div class="value" id="temperature-value">--</div>
+        <span class="unit">°C</span>
     </div>
     <div class="card">
-      <div class="label">Humidity</div>
-      <div class="value" id="humidity-value">--</div>
-      <div class="unit">%</div>
+        <div class="label">Humidity 💧</div>
+        <div class="value" id="humidity-value">--</div>
+        <span class="unit">%</span>
     </div>
-  </div>
+</div>
 
-  <div class="status-message" id="status">Loading data...</div>
+<div class="status-message" id="status-message">Loading data...</div>
 
-  <table>
+<h2 style="text-align:center; margin-bottom:0.5em;">History (latest 20 records)</h2>
+<table id="history-table">
     <thead>
-      <tr>
-        <th>Time</th>
-        <th>Temperature (°C)</th>
-        <th>Humidity (%)</th>
-      </tr>
+        <tr>
+            <th>Time</th>
+            <th>Temp (°C)</th>
+            <th>Humidity (%)</th>
+        </tr>
     </thead>
-    <tbody id="data-table-body">
-    </tbody>
-  </table>
+    <tbody></tbody>
+</table>
 
-  <div id="chart-container">
-    <canvas id="dataChart"></canvas>
-  </div>
+<div id="chart-container">
+    <canvas id="weatherChart"></canvas>
+</div>
 
-  <div class="footer">
-    &copy; 2025 Smart IoT Dashboard
-  </div>
+<!-- Footer -->
+<div class="footer">
+    <p>Create By : 66030178 & 66030196</p>
+</div>
 
-  <script>
-    /* Chart.js */
-    const ctx = document.getElementById('dataChart').getContext('2d');
-    const dataChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: 'Temperature (°C)',
-            borderColor: '#e63946',
-            backgroundColor: 'rgba(230,57,70,0.15)',
-            data: [],
-            fill: true,
-            tension: 0.3
-          },
-          {
-            label: 'Humidity (%)',
-            borderColor: '#0077b6',
-            backgroundColor: 'rgba(0,119,182,0.15)',
-            data: [],
-            fill: true,
-            tension: 0.3
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: '#003459' } } },
-        scales: {
-          x: { ticks: { color: '#003459' } },
-          y: { ticks: { color: '#003459' } }
+<script>
+const BACKEND_BASE = "https://dht-69wz.onrender.com";
+const MAX_HISTORY = 20;
+
+// Chart.js setup
+const ctx = document.getElementById('weatherChart').getContext('2d');
+const chartData = { labels: [], datasets: [
+    { label: 'Temperature (°C)', data: [], borderColor:'#FF9A8B', backgroundColor:'rgba(255,154,139,0.3)', tension:0.4 },
+    { label: 'Humidity (%)', data: [], borderColor:'#80D0C7', backgroundColor:'rgba(128,208,199,0.3)', tension:0.4 }
+]};
+const weatherChart = new Chart(ctx,{
+    type:'line',
+    data: chartData,
+    options:{
+        responsive:true,
+        plugins:{legend:{position:'top'}},
+        scales:{x:{title:{display:true,text:'Time'}},y:{beginAtZero:true}}
+    }
+});
+
+// Load history
+async function loadHistory(){
+    try{
+        const res = await fetch(`${BACKEND_BASE}/history?limit=${MAX_HISTORY}`, {cache:"no-store"});
+        const history = await res.json();
+        const tbody = document.querySelector("#history-table tbody");
+        tbody.innerHTML = "";
+        chartData.labels = [];
+        chartData.datasets[0].data = [];
+        chartData.datasets[1].data = [];
+        history.reverse().forEach(d=>{
+            const tr = document.createElement('tr');
+            tr.innerHTML=`<td>${new Date(d.at).toLocaleTimeString()}</td>
+                          <td>${Number(d.temperature).toFixed(1)}</td>
+                          <td>${Number(d.humidity).toFixed(0)}</td>`;
+            tbody.appendChild(tr);
+            chartData.labels.push(new Date(d.at).toLocaleTimeString());
+            chartData.datasets[0].data.push(Number(d.temperature).toFixed(1));
+            chartData.datasets[1].data.push(Number(d.humidity).toFixed(0));
+        });
+        weatherChart.update();
+        if(history.length>0){
+            document.getElementById('temperature-value').textContent = Number(history[0].temperature).toFixed(1);
+            document.getElementById('humidity-value').textContent = Number(history[0].humidity).toFixed(0);
+            document.getElementById('status-message').textContent = "Latest data loaded";
         }
-      }
-    });
-
-    /* อัปเดตข้อมูลจำลอง */
-    function updateData() {
-      const now = new Date().toLocaleTimeString();
-      const temp = (20 + Math.random() * 10).toFixed(1);
-      const hum = (40 + Math.random() * 20).toFixed(1);
-
-      document.getElementById('temperature-value').textContent = temp;
-      document.getElementById('humidity-value').textContent = hum;
-      document.getElementById('status').textContent = "Latest update at " + now;
-
-      const tableBody = document.getElementById('data-table-body');
-      const newRow = document.createElement('tr');
-      newRow.innerHTML = `<td>${now}</td><td>${temp}</td><td>${hum}</td>`;
-      tableBody.prepend(newRow);
-
-      dataChart.data.labels.push(now);
-      dataChart.data.datasets[0].data.push(temp);
-      dataChart.data.datasets[1].data.push(hum);
-      if (dataChart.data.labels.length > 10) {
-        dataChart.data.labels.shift();
-        dataChart.data.datasets[0].data.shift();
-        dataChart.data.datasets[1].data.shift();
-      }
-      dataChart.update();
+    }catch(e){
+        console.error(e);
+        document.getElementById('status-message').textContent="Failed to load history";
     }
+}
 
-    setInterval(updateData, 3000);
+// Fetch latest data every 5s
+async function fetchData(){
+    try{
+        const res = await fetch(`${BACKEND_BASE}/data`, {cache:"no-store"});
+        const data = await res.json();
+        if(data.temperature!==null) document.getElementById('temperature-value').textContent = Number(data.temperature).toFixed(1);
+        if(data.humidity!==null) document.getElementById('humidity-value').textContent = Number(data.humidity).toFixed(0);
 
-    /* ===== สร้างฟองอากาศแบบสุ่ม ===== */
-    const bubblesContainer = document.getElementById('bubbles');
-    function createBubble() {
-      const bubble = document.createElement('div');
-      bubble.classList.add('bubble');
-      const size = Math.random() * 40 + 10; // 10-50px
-      bubble.style.width = `${size}px`;
-      bubble.style.height = `${size}px`;
-      bubble.style.left = `${Math.random() * 100}%`;
-      bubble.style.animationDuration = `${10 + Math.random() * 10}s`;
-      bubblesContainer.appendChild(bubble);
-      setTimeout(() => bubble.remove(), 20000);
+        // Update table
+        const tbody = document.querySelector("#history-table tbody");
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = `<td>${new Date().toLocaleTimeString()}</td>
+                            <td>${Number(data.temperature).toFixed(1)}</td>
+                            <td>${Number(data.humidity).toFixed(0)}</td>`;
+        tbody.insertBefore(newRow, tbody.firstChild);
+        if(tbody.rows.length > MAX_HISTORY) tbody.deleteRow(tbody.rows.length - 1);
+
+        // Update chart
+        const time = new Date().toLocaleTimeString();
+        chartData.labels.push(time);
+        chartData.datasets[0].data.push(Number(data.temperature).toFixed(1));
+        chartData.datasets[1].data.push(Number(data.humidity).toFixed(0));
+        if(chartData.labels.length > MAX_HISTORY){
+            chartData.labels.shift();
+            chartData.datasets[0].data.shift();
+            chartData.datasets[1].data.shift();
+        }
+        weatherChart.update();
+    }catch(e){
+        console.error(e);
+        document.getElementById('status-message').textContent="Error fetching data";
     }
-    setInterval(createBubble, 800);
-  </script>
+}
+
+loadHistory();
+setInterval(fetchData, 5000);
+</script>
+
 </body>
 </html>
