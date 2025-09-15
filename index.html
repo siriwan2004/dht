@@ -1,273 +1,229 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weather Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-* { box-sizing: border-box; margin:0; padding:0; }
-body {
-    font-family: 'Poppins', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 2em;
-    background: linear-gradient(135deg, #f0f2f5, #d9e2ec);
-    color: #333;
-    transition: background 2s ease;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temperature & Humidity Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2em;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* น้ำเงินเข้ม → เทาเข้ม */
+      color: #f1f1f1;
+    }
 
-/* Fade-in Animation */
-@keyframes fadeInUp {
-    from { opacity:0; transform: translateY(20px); }
-    to { opacity:1; transform: translateY(0); }
-}
+    h1 {
+      font-size: 2.6em;
+      margin-bottom: 1.5em;
+      text-align: center;
+      color: #f5f5f5;
+      text-shadow: 0 0 15px rgba(255,215,0,0.4); /* เงาทองอ่อน */
+    }
 
-/* Header */
-h1 {
-    font-size: 2.6em;
-    margin-bottom: 1.5em;
-    text-align: center;
-    color: #1f2937;
-    animation: fadeInUp 0.6s ease forwards;
-}
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      width: 100%;
+      margin-bottom: 2em;
+    }
 
-/* Cards */
-.container {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    width: 100%;
-    margin-bottom: 2em;
-}
-.card {
-    position: relative;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border-radius: 25px;
-    padding: 2.5em;
-    text-align: center;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    color: #1f2937;
-    transition: all 0.3s ease;
-    animation: fadeInUp 0.6s ease forwards;
-}
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
-}
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,215,0,0.6); /* ขอบทอง */
+      border-radius: 20px;
+      padding: 2em;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 35px rgba(255,215,0,0.4);
+    }
 
-.label { font-weight: 600; font-size: 1.3em; margin-bottom: 0.5em; }
-.value { font-size: 3em; font-weight: 700; }
-.unit { font-size: 1.1em; color: #555; }
-#temperature-value { color: #f43f5e; }
-#humidity-value { color: #0ea5e9; }
+    .label {
+      font-weight: 600;
+      font-size: 1.3em;
+      margin-bottom: 0.5em;
+      color: #FFD700;
+    }
+    .value {
+      font-size: 3em;
+      font-weight: 700;
+      color: #fff;
+    }
+    .unit {
+      font-size: 1.1em;
+      color: #ddd;
+    }
+    #temperature-value { color: #FF6B81; }
+    #humidity-value { color: #33C4BC; }
 
-/* Status message */
-.status-message {
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
-    padding: 16px 24px;
-    border-radius: 25px;
-    margin-bottom: 2em;
-    font-weight: 500;
-    text-align: center;
-    color: #1f2937;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.07);
-    animation: fadeInUp 0.6s ease forwards;
-}
+    .status-message {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(192,192,192,0.5);
+      padding: 16px 24px;
+      border-radius: 15px;
+      margin-bottom: 2em;
+      font-weight: 500;
+      text-align: center;
+      color: #eee;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    }
 
-/* Table */
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 20px;
-    overflow: hidden;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-    margin-bottom: 2em;
-}
-th, td { padding: 12px 15px; text-align: center; color: #1f2937; }
-th { font-weight: 600; background: rgba(255,255,255,0.1); }
-tr:hover { background: rgba(255,255,255,0.05); transition: 0.3s; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,215,0,0.4);
+      margin-bottom: 2em;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      color: #f1f1f1;
+    }
+    th {
+      background: rgba(255,215,0,0.2);
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background: rgba(255,255,255,0.05); }
+    tr:hover { background: rgba(255,215,0,0.15); transition: 0.3s; }
 
-/* Chart container */
-#chart-container {
-    width: 100%;
-    padding: 25px;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(15px);
-    border-radius: 25px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    margin-bottom: 2em;
-    animation: fadeInUp 0.6s ease forwards;
-}
+    #chart-container {
+      width: 100%;
+      padding: 25px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,215,0,0.4);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      margin-bottom: 2em;
+    }
 
-/* Footer */
-.footer {
-    margin-top: 2em;
-    padding: 15px 30px;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
-    border-radius: 25px;
-    text-align: center;
-    font-weight: 500;
-    color: #1f2937;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-    animation: fadeInUp 0.6s ease forwards;
-}
+    .footer {
+      margin-top: 2em;
+      padding: 15px 30px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(192,192,192,0.4);
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 500;
+      color: #f5f5f5;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
 
-/* Responsive */
-@media (min-width: 600px) {
-    .container { flex-direction: row; justify-content: center; }
-    .card { flex: 1 1 220px; max-width: 250px; }
-}
-</style>
+    @media (min-width: 600px) {
+      .container { flex-direction: row; justify-content: center; }
+      .card { flex: 1 1 220px; max-width: 250px; }
+    }
+  </style>
 </head>
 <body>
+  <h1>Temperature & Humidity Dashboard</h1>
 
-<h1>☀️💧 Weather Dashboard</h1>
-
-<div class="container">
+  <div class="container">
     <div class="card">
-        <div class="label">Temperature 🌡️</div>
-        <div class="value" id="temperature-value">--</div>
-        <span class="unit">°C</span>
+      <div class="label">Temperature</div>
+      <div class="value" id="temperature-value">--</div>
+      <div class="unit">°C</div>
     </div>
     <div class="card">
-        <div class="label">Humidity 💧</div>
-        <div class="value" id="humidity-value">--</div>
-        <span class="unit">%</span>
+      <div class="label">Humidity</div>
+      <div class="value" id="humidity-value">--</div>
+      <div class="unit">%</div>
     </div>
-</div>
+  </div>
 
-<div class="status-message" id="status-message">Loading data...</div>
+  <div class="status-message" id="status">Loading data...</div>
 
-<h2 style="text-align:center; margin-bottom:0.5em;">History (latest 20 records)</h2>
-<table id="history-table">
+  <table>
     <thead>
-        <tr>
-            <th>Time ⏰</th>
-            <th>Temp 🌡️</th>
-            <th>Humidity 💧</th>
-        </tr>
+      <tr>
+        <th>Time</th>
+        <th>Temperature (°C)</th>
+        <th>Humidity (%)</th>
+      </tr>
     </thead>
-    <tbody></tbody>
-</table>
+    <tbody id="data-table-body">
+    </tbody>
+  </table>
 
-<div id="chart-container">
-    <canvas id="weatherChart"></canvas>
-</div>
+  <div id="chart-container">
+    <canvas id="dataChart"></canvas>
+  </div>
 
-<div class="footer">
-    <p>Created By : 66030178 & 66030196</p>
-</div>
+  <div class="footer">
+    &copy; 2025 Smart IoT Dashboard
+  </div>
 
-<script>
-// --- JS logic เหมือนเดิม ---
-const BACKEND_BASE = "https://dht-69wz.onrender.com";
-const MAX_HISTORY = 20;
-
-const ctx = document.getElementById('weatherChart').getContext('2d');
-const chartData = { 
-    labels: [], 
-    datasets: [
-        { label: 'Temperature (°C)', data: [], borderColor:'#f43f5e', backgroundColor:'rgba(244,63,94,0.25)', tension:0.4 },
-        { label: 'Humidity (%)', data: [], borderColor:'#0ea5e9', backgroundColor:'rgba(14,165,233,0.25)', tension:0.4 }
-    ]
-};
-const weatherChart = new Chart(ctx,{
-    type:'line',
-    data: chartData,
-    options:{
-        responsive:true,
-        plugins:{legend:{position:'top'}},
-        scales:{x:{title:{display:true,text:'Time'}},y:{beginAtZero:true}}
-    }
-});
-
-async function loadHistory(){
-    try{
-        const res = await fetch(`${BACKEND_BASE}/history?limit=${MAX_HISTORY}`, {cache:"no-store"});
-        const history = await res.json();
-        const tbody = document.querySelector("#history-table tbody");
-        tbody.innerHTML = "";
-        chartData.labels = [];
-        chartData.datasets[0].data = [];
-        chartData.datasets[1].data = [];
-        history.reverse().forEach(d=>{
-            const tr = document.createElement('tr');
-            tr.innerHTML=`<td>${new Date(d.at).toLocaleTimeString()}</td>
-                          <td>${Number(d.temperature).toFixed(1)}</td>
-                          <td>${Number(d.humidity).toFixed(0)}</td>`;
-            tbody.appendChild(tr);
-            chartData.labels.push(new Date(d.at).toLocaleTimeString());
-            chartData.datasets[0].data.push(Number(d.temperature).toFixed(1));
-            chartData.datasets[1].data.push(Number(d.humidity).toFixed(0));
-        });
-        weatherChart.update();
-        if(history.length>0){
-            document.getElementById('temperature-value').textContent = Number(history[0].temperature).toFixed(1);
-            document.getElementById('humidity-value').textContent = Number(history[0].humidity).toFixed(0);
-            document.getElementById('status-message').textContent = "Latest data loaded";
+  <script>
+    const ctx = document.getElementById('dataChart').getContext('2d');
+    const dataChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Temperature (°C)',
+            borderColor: '#FF6B81',
+            data: [],
+            fill: false,
+            tension: 0.3
+          },
+          {
+            label: 'Humidity (%)',
+            borderColor: '#33C4BC',
+            data: [],
+            fill: false,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#f5f5f5' } } },
+        scales: {
+          x: { ticks: { color: '#ddd' } },
+          y: { ticks: { color: '#ddd' } }
         }
-    }catch(e){
-        console.error(e);
-        document.getElementById('status-message').textContent="Failed to load history";
+      }
+    });
+
+    function updateData() {
+      const now = new Date().toLocaleTimeString();
+      const temp = (20 + Math.random() * 10).toFixed(1);
+      const hum = (40 + Math.random() * 20).toFixed(1);
+
+      document.getElementById('temperature-value').textContent = temp;
+      document.getElementById('humidity-value').textContent = hum;
+      document.getElementById('status').textContent = "Latest update at " + now;
+
+      const tableBody = document.getElementById('data-table-body');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `<td>${now}</td><td>${temp}</td><td>${hum}</td>`;
+      tableBody.prepend(newRow);
+
+      dataChart.data.labels.push(now);
+      dataChart.data.datasets[0].data.push(temp);
+      dataChart.data.datasets[1].data.push(hum);
+      if (dataChart.data.labels.length > 10) {
+        dataChart.data.labels.shift();
+        dataChart.data.datasets[0].data.shift();
+        dataChart.data.datasets[1].data.shift();
+      }
+      dataChart.update();
     }
-}
 
-async function fetchData(){
-    try{
-        const res = await fetch(`${BACKEND_BASE}/data`, {cache:"no-store"});
-        const data = await res.json();
-        if(data.temperature!==null) document.getElementById('temperature-value').textContent = Number(data.temperature).toFixed(1);
-        if(data.humidity!==null) document.getElementById('humidity-value').textContent = Number(data.humidity).toFixed(0);
-
-        const tbody = document.querySelector("#history-table tbody");
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `<td>${new Date().toLocaleTimeString()}</td>
-                            <td>${Number(data.temperature).toFixed(1)}</td>
-                            <td>${Number(data.humidity).toFixed(0)}</td>`;
-        tbody.insertBefore(newRow, tbody.firstChild);
-        if(tbody.rows.length > MAX_HISTORY) tbody.deleteRow(tbody.rows.length - 1);
-
-        const time = new Date().toLocaleTimeString();
-        chartData.labels.push(time);
-        chartData.datasets[0].data.push(Number(data.temperature).toFixed(1));
-        chartData.datasets[1].data.push(Number(data.humidity).toFixed(0));
-        if(chartData.labels.length > MAX_HISTORY){
-            chartData.labels.shift();
-            chartData.datasets[0].data.shift();
-            chartData.datasets[1].data.shift();
-        }
-        weatherChart.update();
-    }catch(e){
-        console.error(e);
-        document.getElementById('status-message').textContent="Error fetching data";
-    }
-}
-
-function updateBackgroundByTime(){
-    const hour = new Date().getHours();
-    let bg;
-    if(hour>=6 && hour<12) bg = 'linear-gradient(135deg, #f0f2f5, #d9e2ec)';
-    else if(hour>=12 && hour<18) bg = 'linear-gradient(135deg, #e0f7fa, #cfe8f3)';
-    else if(hour>=18 && hour<21) bg = 'linear-gradient(135deg, #fcefe3, #f9e6d4)';
-    else bg = 'linear-gradient(135deg, #d9e2ec, #f0f2f5)';
-    document.body.style.background = bg;
-}
-
-loadHistory();
-setInterval(fetchData, 5000);
-updateBackgroundByTime();
-setInterval(updateBackgroundByTime, 60000);
-</script>
-
+    setInterval(updateData, 3000);
+  </script>
 </body>
 </html>
