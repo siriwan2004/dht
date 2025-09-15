@@ -204,7 +204,7 @@ async function fetchData(){
 }
 
 // --- Realtime WebSocket ---
-const ws = new WebSocket('ws://localhost:3001');
+const ws = new WebSocket('ws://172.20.10.9:3001');
 ws.onopen=()=>{ document.getElementById('status-message').textContent='Real-time connection established'; };
 ws.onmessage=(event)=>{
     try{
