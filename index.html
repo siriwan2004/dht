@@ -14,8 +14,15 @@
       align-items: center;
       min-height: 100vh;
       padding: 2em;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* น้ำเงินเข้ม → เทาเข้ม */
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: #f1f1f1;
+      animation: bgFlow 15s ease infinite alternate;
+    }
+
+    @keyframes bgFlow {
+      0%   { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+      50%  { background: linear-gradient(135deg, #141E30, #243B55, #2C5364); }
+      100% { background: linear-gradient(135deg, #1f1c2c, #2C3E50, #243B55); }
     }
 
     h1 {
@@ -23,7 +30,13 @@
       margin-bottom: 1.5em;
       text-align: center;
       color: #f5f5f5;
-      text-shadow: 0 0 15px rgba(255,215,0,0.4); /* เงาทองอ่อน */
+      text-shadow: 0 0 20px rgba(255,215,0,0.6);
+      animation: fadeInDown 1.2s ease;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .container {
@@ -36,16 +49,22 @@
 
     .card {
       background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,215,0,0.6); /* ขอบทอง */
+      border: 1px solid rgba(255,215,0,0.6);
       border-radius: 20px;
       padding: 2em;
       text-align: center;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-      transition: all 0.3s ease;
+      transition: all 0.4s ease;
+      animation: fadeInUp 1s ease;
     }
     .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 35px rgba(255,215,0,0.4);
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 15px 40px rgba(255,215,0,0.5);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .label {
@@ -58,6 +77,7 @@
       font-size: 3em;
       font-weight: 700;
       color: #fff;
+      text-shadow: 0 0 12px rgba(255,255,255,0.3);
     }
     .unit {
       font-size: 1.1em;
@@ -67,7 +87,7 @@
     #humidity-value { color: #33C4BC; }
 
     .status-message {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.07);
       border: 1px solid rgba(192,192,192,0.5);
       padding: 16px 24px;
       border-radius: 15px;
@@ -76,6 +96,13 @@
       text-align: center;
       color: #eee;
       box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 10px rgba(255,215,0,0.4); }
+      50%  { box-shadow: 0 0 25px rgba(255,215,0,0.7); }
+      100% { box-shadow: 0 0 10px rgba(255,215,0,0.4); }
     }
 
     table {
@@ -86,6 +113,7 @@
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,215,0,0.4);
       margin-bottom: 2em;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     }
     th, td {
       padding: 12px 15px;
@@ -105,8 +133,9 @@
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,215,0,0.4);
       border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
       margin-bottom: 2em;
+      animation: fadeInUp 1s ease;
     }
 
     .footer {
@@ -119,6 +148,7 @@
       font-weight: 500;
       color: #f5f5f5;
       box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      animation: fadeInUp 1s ease;
     }
 
     @media (min-width: 600px) {
@@ -153,20 +183,25 @@
         <th>Humidity (%)</th>
       </tr>
     </thead>
-    <tbody id="data-table-body">
-    </tbody>
+    <tbody id="data-table-body"></tbody>
   </table>
 
   <div id="chart-container">
     <canvas id="dataChart"></canvas>
   </div>
 
-  <div class="footer">
-    &copy; 2025 Smart IoT Dashboard
-  </div>
+  <div class="footer">&copy; 2025 Smart IoT Dashboard</div>
 
   <script>
     const ctx = document.getElementById('dataChart').getContext('2d');
+    const gradientTemp = ctx.createLinearGradient(0,0,0,300);
+    gradientTemp.addColorStop(0,'rgba(255,107,129,0.8)');
+    gradientTemp.addColorStop(1,'rgba(255,107,129,0.1)');
+
+    const gradientHum = ctx.createLinearGradient(0,0,0,300);
+    gradientHum.addColorStop(0,'rgba(51,196,188,0.8)');
+    gradientHum.addColorStop(1,'rgba(51,196,188,0.1)');
+
     const dataChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -175,16 +210,24 @@
           {
             label: 'Temperature (°C)',
             borderColor: '#FF6B81',
+            backgroundColor: gradientTemp,
             data: [],
-            fill: false,
-            tension: 0.3
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#FF6B81'
           },
           {
             label: 'Humidity (%)',
             borderColor: '#33C4BC',
+            backgroundColor: gradientHum,
             data: [],
-            fill: false,
-            tension: 0.3
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#33C4BC'
           }
         ]
       },
