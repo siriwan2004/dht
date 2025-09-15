@@ -15,20 +15,21 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 1em;
-    background: linear-gradient(135deg, #FFD3B6, #FFAAA5, #A8E6CF, #DCE775);
+    /* Gradient พาสเทลชมพู → ม่วง → ฟ้า */
+    background: linear-gradient(135deg, #FFB6C1, #CBA3D6, #A8D5FA);
     background-size: 400% 400%;
     animation: gradientShift 20s ease infinite;
     color: #fff;
 }
 
-/* --- Gradient Animation --- */
+/* Gradient Animation */
 @keyframes gradientShift {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
-/* --- Header --- */
+/* Header */
 h1 {
     font-size: 2em;
     margin-bottom: 1em;
@@ -36,7 +37,7 @@ h1 {
     text-shadow: 1px 1px 10px rgba(0,0,0,0.2);
 }
 
-/* --- Cards --- */
+/* Cards */
 .container {
     display: flex;
     flex-direction: column;
@@ -61,7 +62,7 @@ h1 {
 #temperature-value { color: #FF9A8B; }
 #humidity-value { color: #80D0C7; }
 
-/* --- Status message --- */
+/* Status message */
 .status-message {
     background: rgba(255,255,255,0.2);
     padding: 10px 15px;
@@ -72,7 +73,7 @@ h1 {
     text-align: center;
 }
 
-/* --- Table --- */
+/* Table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -83,14 +84,11 @@ table {
     box-shadow: 0 6px 18px rgba(0,0,0,0.2);
     margin-bottom: 1.5em;
 }
-th, td {
-    padding: 10px 12px;
-    text-align: center;
-}
+th, td { padding: 10px 12px; text-align: center; }
 th { background: rgba(255,255,255,0.3); font-weight: 600; color: #fff; }
 tr:hover { background: rgba(255,255,255,0.15); transition: 0.3s; }
 
-/* --- Chart --- */
+/* Chart */
 #chart-container {
     width: 100%;
     padding: 15px;
@@ -101,7 +99,20 @@ tr:hover { background: rgba(255,255,255,0.15); transition: 0.3s; }
     margin-bottom: 2em;
 }
 
-/* --- Responsive --- */
+/* Footer */
+.footer {
+    margin-top: 2em;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px);
+    border-radius: 15px;
+    text-align: center;
+    font-weight: 500;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Responsive */
 @media (min-width: 600px) {
     .container { flex-direction: row; justify-content: center; }
     .card { flex: 1 1 200px; max-width: 220px; }
@@ -143,11 +154,16 @@ tr:hover { background: rgba(255,255,255,0.15); transition: 0.3s; }
     <canvas id="weatherChart"></canvas>
 </div>
 
+<!-- Footer -->
+<div class="footer">
+    <p>Create By : 66030178 & 66030196</p>
+</div>
+
 <script>
 const BACKEND_BASE = "https://dht-69wz.onrender.com";
 const MAX_HISTORY = 20;
 
-// --- Chart.js setup ---
+// Chart.js setup
 const ctx = document.getElementById('weatherChart').getContext('2d');
 const chartData = { labels: [], datasets: [
     { label: 'Temperature (°C)', data: [], borderColor:'#FF9A8B', backgroundColor:'rgba(255,154,139,0.3)', tension:0.4 },
@@ -163,7 +179,7 @@ const weatherChart = new Chart(ctx,{
     }
 });
 
-// --- Load history ---
+// Load history
 async function loadHistory(){
     try{
         const res = await fetch(`${BACKEND_BASE}/history?limit=${MAX_HISTORY}`, {cache:"no-store"});
@@ -195,7 +211,7 @@ async function loadHistory(){
     }
 }
 
-// --- Fetch latest data every 5s ---
+// Fetch latest data every 5s
 async function fetchData(){
     try{
         const res = await fetch(`${BACKEND_BASE}/data`, {cache:"no-store"});
@@ -228,9 +244,6 @@ async function fetchData(){
         document.getElementById('status-message').textContent="Error fetching data";
     }
 }
-<div class="footer">
-    <p>Create By: 66030178 & 66030196</p>
-</div>
 
 loadHistory();
 setInterval(fetchData, 5000);
