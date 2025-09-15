@@ -57,14 +57,18 @@ app.post('/temperature', async (req, res) => {
     return res.status(400).json({ error: 'Invalid payload: need number temperature & humidity' });
   }
 
-  const doc = { temperature, humidity };
-  latest = { temperature, humidity};
+  const now = new Date();
+  const doc = { temperature, humidity, at: now }; // บันทึกเวลา
+  latest = { temperature, humidity, at: now.getTime() }; // เก็บ timestamp เป็น ms
 
   console.log('Received:', latest);
 
   if (readingsCol) {
-    try { await readingsCol.insertOne(doc); } 
-    catch (e) { console.error('Mongo insert error:', e); }
+    try { 
+      await readingsCol.insertOne(doc); 
+    } catch (e) { 
+      console.error('Mongo insert error:', e); 
+    }
   }
 
   res.json({ ok: true });
@@ -94,12 +98,20 @@ app.get('/history', async (req, res) => {
       .sort({ at: -1 })
       .limit(limit)
       .toArray();
-    res.json(docs.reverse());
+
+    // map at เป็น timestamp ms
+    const formatted = docs.reverse().map(d => ({
+      temperature: d.temperature,
+      humidity: d.humidity,
+      at: d.at.getTime(),
+    }));
+
+    res.json(formatted);
   } catch (e) { console.error('/history error:', e); res.json([]); }
 });
 
 // ===== Hello World route =====
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.send('Hello World!');
 });
 
