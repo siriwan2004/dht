@@ -1,343 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Temperature & Humidity Monitor</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* === Root Colors (Pastel Palette) === */
-    :root {
-      --bg-gradient: linear-gradient(135deg, #c1f0f6, #fddde6);
-      --card-bg: rgba(255, 255, 255, 0.8);
-      --text-color: #333;
-      --muted-color: #666;
-      --temp-color: #ff9a76;
-      --hum-color: #76d7ff;
-      --border-color: rgba(0,0,0,0.1);
-      --shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temperature & Humidity Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-gradient: linear-gradient(135deg, #c1f0f6, #fddde6);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --text-color: #333;
+  --muted-color: #666;
+  --temp-color: #ff6b6b;
+  --hum-color: #4dabf7;
+  --border-color: rgba(0,0,0,0.1);
+  --shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
 
-    * { box-sizing: border-box; margin:0; padding:0; }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg-gradient);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 20px;
-      color: var(--text-color);
-    }
+body {
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  color: var(--text-color);
+  overflow-x: hidden;
+  position: relative;
+}
 
-    .board {
-      max-width: 1200px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      grid-gap: 20px;
-    }
+/* --- Bubble Background --- */
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.3);
+  animation: rise 15s infinite;
+}
+@keyframes rise {
+  0% { transform: translateY(100vh) scale(0.5); opacity:0.5; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-10vh) scale(1); opacity:0; }
+}
 
-    .bar {
-      grid-column: 1/-1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 25px;
-      background: var(--card-bg);
-      border-radius: 15px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-      font-weight: 600;
-      font-size: 1.2rem;
-    }
+/* --- Board & Cards --- */
+.board {
+  max-width: 1200px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-gap: 20px;
+}
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
+.bar {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background: var(--card-bg);
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
 
-    .main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 2rem;
-      color: var(--temp-color);
-    }
+.card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 2em;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
 
-    .tempRow {
-      display: flex;
-      align-items: baseline;
-      gap: 5px;
-      font-size: 2.5rem;
-      font-weight: 700;
-    }
+.main {
+  font-size: 2rem;
+  color: var(--temp-color);
+}
 
-    .unit {
-      font-size: 1.5rem;
-      color: var(--muted-color);
-    }
+.tempRow {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
 
-    .subtext {
-      margin-top: 8px;
-      font-size: 1rem;
-      color: var(--muted-color);
-    }
+.unit {
+  font-size: 1.5rem;
+  color: var(--muted-color);
+}
 
-    .side .card {
-      margin-bottom: 20px;
-      width: 100%;
-    }
+.subtext {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: var(--muted-color);
+}
 
-    .donut {
-      --p:0;
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: conic-gradient(var(--hum-color) calc(var(--p) * 1%), #eee 0);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      color: var(--text-color);
-      margin-left: auto;
-    }
+.side .card {
+  margin-bottom: 20px;
+  width: 100%;
+}
 
-    .chart-card {
-      grid-column: 1/-1;
-      padding: 20px;
-    }
+.donut {
+  --p:0;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(var(--hum-color) calc(var(--p) * 1%), #eee 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-left: auto;
+}
 
-    canvas {
-      width: 100%;
-      height: 250px;
-    }
+.chart-card {
+  grid-column: 1/-1;
+  padding: 20px;
+}
 
-    .history table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      background: var(--card-bg);
-      border-radius: 10px;
-      overflow: hidden;
-    }
+canvas {
+  width: 100%;
+  height: 250px;
+}
 
-    .history th, .history td {
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid var(--border-color);
-    }
+.history table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+}
 
-    .history th {
-      background: #f0f0f0;
-      color: var(--text-color);
-    }
+.history th, .history td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
 
-    .status-wrap {
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-align: center;
-      padding: 10px;
-      border-radius: 10px;
-      background: #fff3;
-    }
+.history th {
+  background: #a1c4fd;
+  color: #fff;
+}
 
-    .legend {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-      color: var(--muted-color);
-    }
+.status-wrap {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 10px;
+  border-radius: 10px;
+  background: #fff3;
+}
 
-    .dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 4px;
-    }
+.legend {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: var(--muted-color);
+}
 
-    .dot.t { background: var(--temp-color); }
-    .dot.h { background: var(--hum-color); }
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
 
-  </style>
+.dot.t { background: var(--temp-color); }
+.dot.h { background: var(--hum-color); }
+</style>
 </head>
 <body>
-  <div class="board">
-    <div class="bar">
-      <div>Temperature & Humidity Dashboard</div>
-      <div id="clock">--:--:--</div>
-    </div>
+<div id="bubbles"></div>
 
-    <section class="card main">
-      <div>🌡️</div>
-      <div class="tempRow">
-        <div id="temperature-value">--</div>
-        <div class="unit">°C</div>
-      </div>
-      <div class="subtext">Temperature</div>
-    </section>
-
-    <section class="side">
-      <div class="card">
-        <div>💧 Humidity</div>
-        <div class="donut" id="humidity-donut" style="--p:0">
-          <span id="humidity-value">--%</span>
-        </div>
-      </div>
-
-      <div class="card status-wrap">
-        <div id="status-message">Connecting...</div>
-      </div>
-    </section>
-
-    <section class="card chart-card">
-      <div class="legend">
-        <span><span class="dot t"></span>Temp</span>
-        <span><span class="dot h"></span>Humidity</span>
-      </div>
-      <canvas id="chart"></canvas>
-    </section>
-
-    <section class="card history">
-      <h3 style="margin-bottom:10px; color:#333">History (MongoDB)</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Temperature (°C)</th>
-              <th>Humidity (%RH)</th>
-            </tr>
-          </thead>
-          <tbody id="history-body"></tbody>
-        </table>
-      </div>
-    </section>
+<div class="board">
+  <div class="bar">
+    <div>Temperature & Humidity Dashboard</div>
+    <div id="clock">--:--:--</div>
   </div>
 
-  <script>
-    const BACKEND_BASE = "https://dht-69wz.onrender.com";
-    const MAX_POINTS = 60;
-    const series = { t: [], h: [], ts: [] };
+  <section class="card main">
+    <div>🌡️</div>
+    <div class="tempRow">
+      <div id="temperature-value">--</div>
+      <div class="unit">°C</div>
+    </div>
+    <div class="subtext">Temperature</div>
+  </section>
 
-    const setText = (id,val)=>{const el=document.getElementById(id); if(el) el.textContent=val;}
+  <section class="side">
+    <div class="card">
+      <div>💧 Humidity</div>
+      <div class="donut" id="humidity-donut" style="--p:0">
+        <span id="humidity-value">--%</span>
+      </div>
+    </div>
+    <div class="card status-wrap">
+      <div id="status-message">Connecting...</div>
+    </div>
+  </section>
 
-    // ===== Clock =====
-    function updateClock(){
-      const el=document.getElementById('clock'); 
-      if(!el) return;
-      el.textContent = new Date().toLocaleTimeString('en-US',{hour12:false,timeZone:'Asia/Bangkok'});
-    }
-    updateClock(); setInterval(updateClock,1000);
+  <section class="card chart-card">
+    <div class="legend">
+      <span><span class="dot t"></span>Temp</span>
+      <span><span class="dot h"></span>Humidity</span>
+    </div>
+    <canvas id="chart"></canvas>
+  </section>
 
-    // ===== Chart Setup =====
-    const canvas=document.getElementById('chart');
-    const ctx=canvas.getContext('2d');
-    let dpi = window.devicePixelRatio || 1;
-    function resizeCanvas(){
-      const rect=canvas.getBoundingClientRect();
-      canvas.width=Math.round(rect.width*dpi);
-      canvas.height=Math.round(rect.height*dpi);
-      drawChart(1);
-    }
-    window.addEventListener('resize',resizeCanvas); resizeCanvas();
+  <section class="card history">
+    <h3 style="margin-bottom:10px; color:#333">History (MongoDB)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Temperature (°C)</th>
+            <th>Humidity (%RH)</th>
+          </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
 
-    function lerp(a,b,t){ return a+(b-a)*t; }
-    function pushPoint(temp,hum,ts=Date.now()){
-      series.t.push(Number(temp));
-      series.h.push(Number(hum));
-      series.ts.push(Number(ts));
-      if(series.t.length>MAX_POINTS){series.t.shift(); series.h.shift(); series.ts.shift();}
-      drawChart(1);
-    }
+<script>
+const BACKEND_BASE = "https://dht-69wz.onrender.com";
+const MAX_POINTS = 60;
+const series = { t: [], h: [], ts: [] };
 
-    function drawChart(progress=1){
-      if(!ctx) return;
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      const w=canvas.width, h=canvas.height;
-      const pad=40;
-      if(series.ts.length<2) return;
-      const tMin=Math.min(...series.t), tMax=Math.max(...series.t);
-      const hMin=Math.min(...series.h), hMax=Math.max(...series.h);
+const setText = (id,val)=>{const el=document.getElementById(id); if(el) el.textContent=val;}
 
-      // Temp line
-      ctx.beginPath();
-      series.t.forEach((v,i)=>{
-        const x=pad + i*(w-2*pad)/(series.t.length-1);
-        const y=h-pad-(v-tMin)/(tMax-tMin)*(h-2*pad);
-        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-      });
-      ctx.strokeStyle='var(--temp-color)';
-      ctx.lineWidth=2*dpi;
-      ctx.stroke();
+// --- Clock ---
+function updateClock(){
+  const el=document.getElementById('clock'); 
+  if(!el) return;
+  el.textContent = new Date().toLocaleTimeString('en-US',{hour12:false,timeZone:'Asia/Bangkok'});
+}
+updateClock(); setInterval(updateClock,1000);
 
-      // Humidity line
-      ctx.beginPath();
-      series.h.forEach((v,i)=>{
-        const x=pad + i*(w-2*pad)/(series.h.length-1);
-        const y=h-pad-(v-hMin)/(hMax-hMin)*(h-2*pad);
-        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-      });
-      ctx.strokeStyle='var(--hum-color)';
-      ctx.lineWidth=2*dpi;
-      ctx.stroke();
-    }
+// --- Bubble animation ---
+const bubblesContainer = document.getElementById('bubbles');
+for(let i=0;i<30;i++){
+    const bubble = document.createElement('div');
+    bubble.className='bubble';
+    const size=Math.random()*20+10;
+    bubble.style.width=`${size}px`;
+    bubble.style.height=`${size}px`;
+    bubble.style.left=`${Math.random()*100}vw`;
+    bubble.style.animationDuration=`${10+Math.random()*10}s`;
+    bubble.style.animationDelay=`${Math.random()*5}s`;
+    bubblesContainer.appendChild(bubble);
+}
 
-    // ===== Load history =====
-    async function loadHistory(limit=120){
-      try{
-        const res=await fetch(`${BACKEND_BASE}/history?limit=${limit}`,{cache:"no-store"});
-        const docs=await res.json();
-        const tbody=document.getElementById('history-body');
-        tbody.innerHTML='';
-        docs.forEach(d=>{
-          const tsThai=new Date(d.at).getTime()+7*60*60*1000;
-          pushPoint(d.temperature,d.humidity,tsThai);
-          const tr=document.createElement('tr');
-          tr.innerHTML=`<td>${new Date(d.at).toLocaleString('en-US',{hour12:false,timeZone:'Asia/Bangkok'})}</td>
-                        <td>${Number(d.temperature).toFixed(1)}</td>
-                        <td>${Number(d.humidity).toFixed(0)}</td>`;
-          tbody.appendChild(tr);
-        });
-      }catch(e){ console.error('loadHistory error:',e); }
-    }
+// --- Chart ---
+const canvas=document.getElementById('chart');
+const ctx=canvas.getContext('2d');
+let dpi=window.devicePixelRatio||1;
+function resizeCanvas(){
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=Math.round(rect.width*dpi);
+  canvas.height=Math.round(rect.height*dpi);
+  drawChart();
+}
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
 
-    // ===== Fetch realtime data =====
-    async function fetchData(){
-      try{
-        const res=await fetch(`${BACKEND_BASE}/data`,{cache:"no-store"});
-        const data=await res.json();
-        if(data.temperature!==null){
-          const t=Number(data.temperature);
-          setText("temperature-value",t.toFixed(1));
-          if(!isNaN(t) && data.humidity!==null){
-            const ts = data.at ? new Date(data.at).getTime()+7*60*60*1000 : Date.now();
-            pushPoint(t,Number(data.humidity),ts);
-          }
-        }
-        if(data.humidity!==null){
-          const h=Number(data.humidity);
-          setText("humidity-value",`${h.toFixed(0)}%`);
-          const donut=document.getElementById('humidity-donut');
-          if(donut) donut.style.setProperty('--p', Math.max(0,Math.min(100,h)));
-        }
-        setText("status-message","Data updated ✅");
-      }catch(err){ console.error(err); setText("status-message","Error fetching data ⚠️"); }
-    }
+function pushPoint(temp,hum,ts=Date.now()){
+  series.t.push(Number(temp));
+  series.h.push(Number(hum));
+  series.ts.push(Number(ts));
+  if(series.t.length>MAX_POINTS){series.t.shift(); series.h.shift(); series.ts.shift();}
+  drawChart();
+}
 
-    loadHistory(120).finally(()=>{
-      fetchData();
-      setInterval(fetchData,5000);
+function drawChart(){
+  if(!ctx || series.ts.length<2) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const w=canvas.width, h=canvas.height, pad=40;
+  const tMin=Math.min(...series.t), tMax=Math.max(...series.t);
+  const hMin=Math.min(...series.h), hMax=Math.max(...series.h);
+
+  ctx.beginPath();
+  series.t.forEach((v,i)=>{
+    const x=pad + i*(w-2*pad)/(series.t.length-1);
+    const y=h-pad-(v-tMin)/(tMax-tMin)*(h-2*pad);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='var(--temp-color)';
+  ctx.lineWidth=2*dpi;
+  ctx.stroke();
+
+  ctx.beginPath();
+  series.h.forEach((v,i)=>{
+    const x=pad + i*(w-2*pad)/(series.h.length-1);
+    const y=h-pad-(v-hMin)/(hMax-hMin)*(h-2*pad);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='var(--hum-color)';
+  ctx.lineWidth=2*dpi;
+  ctx.stroke();
+}
+
+// --- Load history ---
+async function loadHistory(limit=120){
+  try{
+    const res=await fetch(`${BACKEND_BASE}/history?limit=${limit}`,{cache:"no-store"});
+    const docs=await res.json();
+    const tbody=document.getElementById('history-body');
+    tbody.innerHTML='';
+    docs.forEach(d=>{
+      const tsThai=new Date(d.at).getTime()+7*60*60*1000;
+      pushPoint(d.temperature,d.humidity,tsThai);
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${new Date(d.at).toLocaleString('en-US',{hour12:false,timeZone:'Asia/Bangkok'})}</td>
+                    <td>${Number(d.temperature).toFixed(1)}</td>
+                    <td>${Number(d.humidity).toFixed(0)}</td>`;
+      tbody.appendChild(tr);
     });
-  </script>
+  }catch(e){ console.error('loadHistory error:',e); }
+}
+
+// --- Fetch realtime data ---
+async function fetchData(){
+  try{
+    const res=await fetch(`${BACKEND_BASE}/data`,{cache:"no-store"});
+    const data=await res.json();
+    if(data.temperature!==null){
+      const t=Number(data.temperature);
+      setText("temperature-value",t.toFixed(1));
+      if(!isNaN(t) && data.humidity!==null){
+        const ts = data.at ? new Date(data.at).getTime()+7*60*60*1000 : Date.now();
+        pushPoint(t,Number(data.humidity),ts);
+      }
+    }
+    if(data.humidity!==null){
+      const h=Number(data.humidity);
+      setText("humidity-value",`${h.toFixed(0)}%`);
+      const donut=document.getElementById('humidity-donut');
+      if(donut) donut.style.setProperty('--p', Math.max(0,Math.min(100,h)));
+    }
+    setText("status-message","Data updated ✅");
+  }catch(err){ console.error(err); setText("status-message","Error fetching data ⚠️"); }
+}
+
+loadHistory(120).finally(()=>{
+  fetchData();
+  setInterval(fetchData,5000);
+});
+</script>
 </body>
 </html>
