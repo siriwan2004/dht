@@ -15,18 +15,8 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 1em;
-    /* พื้นหลังพาสเทลสบายตา */
-    background: linear-gradient(135deg, #ffefc1, #d0f0fd, #c8f7d2);
-    background-size: 400% 400%;
-    animation: gradientShift 20s ease infinite;
-    color: #333; /* ตัวอักษรเข้มอ่านง่าย */
-}
-
-/* Gradient Animation */
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    color: #333;
+    transition: background 2s ease; /* สำหรับเปลี่ยนพื้นหลังนุ่ม */
 }
 
 /* Fade-in Animation */
@@ -42,7 +32,7 @@ h1 {
     text-align: center;
     text-shadow: 1px 1px 6px rgba(0,0,0,0.15);
     animation: fadeInUp 0.6s ease forwards;
-    color: #444; /* ตัวอักษรชัดขึ้น */
+    color: #444;
 }
 
 /* Cards */
@@ -62,8 +52,8 @@ h1 {
     box-shadow: 0 12px 35px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
     animation: fadeInUp 0.6s ease forwards;
-    border: 4px dashed rgba(150,150,150,0.5); /* การ์ตูนกรอบเส้นประ */
-    color: #333; /* ตัวอักษรอ่านง่าย */
+    border: 4px dashed rgba(150,150,150,0.5);
+    color: #333;
 }
 .card:hover { 
     transform: translateY(-5px); 
@@ -262,8 +252,22 @@ async function fetchData(){
     }
 }
 
+// ฟังก์ชันเปลี่ยนพื้นหลังตามเวลา
+function updateBackgroundByTime(){
+    const hour = new Date().getHours();
+    let bg;
+    if(hour>=6 && hour<12) bg = 'linear-gradient(135deg, #FFFAE3, #FFF5C2)';        // เช้า
+    else if(hour>=12 && hour<18) bg = 'linear-gradient(135deg, #D0F0FD, #A8E6FF)';   // กลางวัน
+    else if(hour>=18 && hour<21) bg = 'linear-gradient(135deg, #FFD1DC, #FFB3C1)';   // เย็น
+    else bg = 'linear-gradient(135deg, #C8F7D2, #A8EFC4)';                           // กลางคืน
+    document.body.style.background = bg;
+}
+
+// เริ่มโหลด
 loadHistory();
 setInterval(fetchData, 5000);
+updateBackgroundByTime();
+setInterval(updateBackgroundByTime, 60000); // อัปเดตทุก 1 นาที
 </script>
 
 </body>
