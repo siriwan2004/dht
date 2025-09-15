@@ -15,11 +15,11 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 1em;
-    /* Gradient พาสเทลชมพู → เขียว → ฟ้า */
-    background: linear-gradient(135deg, #ffd1dc, #b0f2b6, #a8f0ff);
+    /* พื้นหลังพาสเทลสบายตา */
+    background: linear-gradient(135deg, #ffefc1, #d0f0fd, #c8f7d2);
     background-size: 400% 400%;
     animation: gradientShift 20s ease infinite;
-    color: #fff;
+    color: #333; /* ตัวอักษรเข้มอ่านง่าย */
 }
 
 /* Gradient Animation */
@@ -40,8 +40,9 @@ h1 {
     font-size: 2.4em;
     margin-bottom: 1em;
     text-align: center;
-    text-shadow: 1px 1px 12px rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.15);
     animation: fadeInUp 0.6s ease forwards;
+    color: #444; /* ตัวอักษรชัดขึ้น */
 }
 
 /* Cards */
@@ -54,38 +55,38 @@ h1 {
 }
 .card {
     position: relative;
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.7);
     border-radius: 30px;
     padding: 2em;
     text-align: center;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
     animation: fadeInUp 0.6s ease forwards;
-    border: 4px dashed rgba(255,255,255,0.5); /* การ์ตูนกรอบเส้นประ */
+    border: 4px dashed rgba(150,150,150,0.5); /* การ์ตูนกรอบเส้นประ */
+    color: #333; /* ตัวอักษรอ่านง่าย */
 }
 .card:hover { 
     transform: translateY(-5px); 
-    box-shadow: 0 18px 45px rgba(0,0,0,0.25); 
+    box-shadow: 0 18px 45px rgba(0,0,0,0.15); 
 }
 
-.label { font-weight: 600; font-size: 1.3em; margin-bottom: 0.5em; color: #fff; }
-.value { font-size: 3.2em; font-weight: 700; text-shadow: 1px 1px 8px rgba(0,0,0,0.2);}
-.unit { font-size: 1.1em; color: rgba(255,255,255,0.8); }
-#temperature-value { color: #FFB6C1; }
-#humidity-value { color: #80D0C7; }
+.label { font-weight: 600; font-size: 1.3em; margin-bottom: 0.5em; }
+.value { font-size: 3.2em; font-weight: 700; }
+.unit { font-size: 1.1em; color: #555; }
+#temperature-value { color: #FF6B81; }
+#humidity-value { color: #33C4BC; }
 
 /* Status message */
 .status-message {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.7);
     padding: 14px 22px;
     border-radius: 25px;
-    backdrop-filter: blur(25px);
     margin-bottom: 1.5em;
     font-weight: 500;
     text-align: center;
-    border: 3px dashed rgba(255,255,255,0.5); /* กรอบการ์ตูน */
+    border: 3px dashed rgba(150,150,150,0.5);
     animation: fadeInUp 0.6s ease forwards;
+    color: #333;
 }
 
 /* Table */
@@ -95,27 +96,24 @@ table {
     border-spacing: 0;
     border-radius: 20px;
     overflow: hidden;
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    background: rgba(255,255,255,0.7);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     margin-bottom: 1.5em;
-    border: 4px dashed rgba(255,255,255,0.5); /* กรอบการ์ตูน */
-    animation: fadeInUp 0.6s ease forwards;
+    border: 4px dashed rgba(150,150,150,0.5);
 }
-th, td { padding: 12px 15px; text-align: center; }
-th { background: rgba(255,255,255,0.25); font-weight: 600; color: #fff; }
-tr:hover { background: rgba(255,255,255,0.2); transition: 0.3s; }
+th, td { padding: 12px 15px; text-align: center; color: #333; }
+th { background: rgba(255,255,255,0.6); font-weight: 600; }
+tr:hover { background: rgba(255,255,255,0.5); transition: 0.3s; }
 
 /* Chart */
 #chart-container {
     width: 100%;
     padding: 25px;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.7);
     border-radius: 30px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
     margin-bottom: 2em;
-    border: 4px dashed rgba(255,255,255,0.5); /* กรอบการ์ตูน */
+    border: 4px dashed rgba(150,150,150,0.5);
     animation: fadeInUp 0.6s ease forwards;
 }
 
@@ -123,14 +121,13 @@ tr:hover { background: rgba(255,255,255,0.2); transition: 0.3s; }
 .footer {
     margin-top: 2em;
     padding: 15px 30px;
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.7);
     border-radius: 20px;
     text-align: center;
     font-weight: 500;
-    color: #fff;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    border: 3px dashed rgba(255,255,255,0.5); /* กรอบการ์ตูน */
+    color: #333;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border: 3px dashed rgba(150,150,150,0.5);
     animation: fadeInUp 0.6s ease forwards;
 }
 
@@ -189,8 +186,8 @@ const ctx = document.getElementById('weatherChart').getContext('2d');
 const chartData = { 
     labels: [], 
     datasets: [
-        { label: 'Temperature (°C)', data: [], borderColor:'#FFB6C1', backgroundColor:'rgba(255,182,193,0.25)', tension:0.4 },
-        { label: 'Humidity (%)', data: [], borderColor:'#80D0C7', backgroundColor:'rgba(128,208,199,0.25)', tension:0.4 }
+        { label: 'Temperature (°C)', data: [], borderColor:'#FF6B81', backgroundColor:'rgba(255,107,129,0.25)', tension:0.4 },
+        { label: 'Humidity (%)', data: [], borderColor:'#33C4BC', backgroundColor:'rgba(51,196,188,0.25)', tension:0.4 }
     ]
 };
 const weatherChart = new Chart(ctx,{
