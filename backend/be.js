@@ -21,21 +21,26 @@ async function initMongo() {
     console.warn('MONGODB_URI not set. Mongo logging skipped.');
     return;
   }
-  mongoClient = new MongoClient(MONGO_URI);
-  await mongoClient.connect();
-  const db = mongoClient.db(DB_NAME);
-  readingsCol = db.collection(COLLECTION);
-  await readingsCol.createIndex({ at: -1 });
-  console.log(`Connected to MongoDB → db: ${DB_NAME}, col: ${COLLECTION}`);
+  try {
+    mongoClient = new MongoClient(MONGO_URI);
+    await mongoClient.connect();
+    const db = mongoClient.db(DB_NAME);
+    readingsCol = db.collection(COLLECTION);
+    await readingsCol.createIndex({ at: -1 });
+    console.log(`Connected to MongoDB → db: ${DB_NAME}, col: ${COLLECTION}`);
+  } catch (err) {
+    console.error('Mongo init error:', err);
+  }
 }
 initMongo().catch(err => console.error('Mongo init error:', err));
+console.log('Server starting, Mongo may not be ready yet');
 
 // ===== CORS =====
 const ALLOW_ORIGINS = new Set([
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:5173',
-  'https://dht-fawn.vercel.app/',
+  'https://dht-fawn.vercel.app', // ลบ / ข้างหลัง
 ]);
 
 app.use(cors({
@@ -59,7 +64,7 @@ app.post('/temperature', async (req, res) => {
 
   const now = new Date();
   const doc = { temperature, humidity, at: now }; // บันทึกเวลา
-  latest = { temperature, humidity }; // เก็บ timestamp เป็น ms
+  latest = { temperature, humidity, at: now.getTime() }; // เก็บ timestamp เป็น ms
 
   console.log('Received:', latest);
 
@@ -120,7 +125,9 @@ app.get('/health', (_req, res) => res.send('ok'));
 
 // ===== Graceful shutdown =====
 process.on('SIGTERM', async () => {
-  try { await mongoClient?.close(); } catch {}
+  console.log('SIGTERM received, closing MongoDB...');
+  try { await mongoClient?.close(); } catch(e) { console.error(e); }
+  console.log('MongoDB closed, exiting.');
   process.exit(0);
 });
 
