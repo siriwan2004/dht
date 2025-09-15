@@ -35,7 +35,7 @@ const ALLOW_ORIGINS = new Set([
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:5173',
-  'https://dht-git-main-suwannarat30s-projects.vercel.app/',
+  'https://dht-fawn.vercel.app/',
 ]);
 
 app.use(cors({
