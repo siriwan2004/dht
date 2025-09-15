@@ -1,15 +1,13 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
   "main": "be.js",
   "scripts": {
     "start": "node be.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^5.1.0",
+    "cors": "^2.8.5",
+    "mongoose": "^7.0.0"
   }
 }
